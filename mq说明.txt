@@ -1,6 +1,9 @@
 安装mq以后直接启动,修改登录帐号conf/jetty-realm.properties
 
 登录地址修改
+
+
+ 启动:http://www.tuicool.com/articles/eYFZBz
 http://127.0.0.1:8161/admin默认地址
 <bean id="jettyPort" class="org.apache.activemq.web.WebConsolePort" init-method="start">
 <!-- the default port number for the web console -->
