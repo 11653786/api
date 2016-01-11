@@ -16,6 +16,7 @@ public class SenderTest {
         JmsSender jmsSender=context.getBean(JmsSender.class);
         Random random=new Random();
         //jmsSender.sendMessage("hello,world",null, MsgType.TextMessage.getMessageType());
-        jmsSender.sendMessage("hello,world",new User("name"+random.nextInt()),MsgType.ObjMessage.getMessageType());
+        //jmsSender.sendMessage("hello,world",new User("name"+random.nextInt()),MsgType.ObjMessage.getMessageType());
+        jmsSender.sendMessage("hello,world",new User("name"+random.nextInt()),MsgType.MapMessage.getMessageType());
     }
 }

@@ -41,6 +41,13 @@ public class JmsReceiverListener implements MessageListener{
              }else if(message instanceof  ObjectMessage){
                  ObjectMessage objectMessage= (ObjectMessage) message;
                  System.out.println(objectMessage.getObject());
+             }else if(message instanceof  MapMessage){
+                 MapMessage mapMessage= (MapMessage) message;
+                 Enumeration enums= mapMessage.getMapNames();
+                 while (enums.hasMoreElements()){
+                     System.out.println(enums.nextElement());
+                 }
+
              }
         } catch (JMSException e) {
             System.out.println("接收异常: "+e.getMessage());

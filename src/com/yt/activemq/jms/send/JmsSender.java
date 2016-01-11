@@ -37,6 +37,10 @@ public class JmsSender {
                         ObjectMessage objectMessage=session.createObjectMessage();
                        objectMessage.setObject(user);
                        message=objectMessage;
+                   }else if(msgType.equals(MsgType.MapMessage.getMessageType())){
+                       MapMessage mapMessage=session.createMapMessage();
+                       mapMessage.setObject("KEY2","VALUE");
+                       message=mapMessage;
                    }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
