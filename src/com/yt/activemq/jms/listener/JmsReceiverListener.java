@@ -34,11 +34,16 @@ public class JmsReceiverListener implements MessageListener{
 
     @Override
     public void onMessage(Message message) {
-        TextMessage textMsg = (TextMessage) message;
         try {
-            System.out.println("接收的消息内容是：" + textMsg.getText());
+             if (message instanceof TextMessage) {
+                 TextMessage textMessage = (TextMessage) message;
+                System.out.println("接收内容: " + textMessage.getText());
+             }else if(message instanceof  ObjectMessage){
+                 ObjectMessage objectMessage= (ObjectMessage) message;
+                 System.out.println(objectMessage.getObject());
+             }
         } catch (JMSException e) {
-            e.printStackTrace();
+            System.out.println("接收异常: "+e.getMessage());
         }
     }
 }

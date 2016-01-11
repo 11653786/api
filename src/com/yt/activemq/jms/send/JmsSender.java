@@ -1,5 +1,7 @@
 package com.yt.activemq.jms.send;
 
+import com.sun.media.jfxmedia.logging.Logger;
+import com.yt.activemq.enmu.MsgType;
 import com.yt.activemq.entity.User;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
@@ -17,18 +19,34 @@ public class JmsSender {
     private JmsTemplate jmsTemplate;
     private Destination destination;
 
-    public void sendMessage(final String message) {
-        if(destination==null){
-        destination=jmsTemplate.getDefaultDestination();
+   private  Random random=new Random();
+
+    public void sendMessage(final String msg,final User user,final String msgType) {
+        if (destination == null) {
+            destination = jmsTemplate.getDefaultDestination();
         }
-        System.out.println("---------------生产者发了一个消息：" + message);
         jmsTemplate.send(destination, new MessageCreator() {
             public Message createMessage(Session session) throws JMSException {
-                return session.createTextMessage(message);
+                Message message = null;
+                try {
+                   if(msgType.equals(MsgType.TextMessage.getMessageType())){
+                     TextMessage  textMessage=session.createTextMessage();
+                       textMessage.setText(msg);
+                        message=textMessage;
+                    }else if(msgType.equals(MsgType.ObjMessage.getMessageType())){
+                        ObjectMessage objectMessage=session.createObjectMessage();
+                       objectMessage.setObject(user);
+                       message=objectMessage;
+                   }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }finally {
+
+                }
+                return message;
             }
         });
     }
-
 
 
     public JmsTemplate getJmsTemplate() {
@@ -38,7 +56,6 @@ public class JmsSender {
     public void setJmsTemplate(JmsTemplate jmsTemplate) {
         this.jmsTemplate = jmsTemplate;
     }
-
 
 
 }

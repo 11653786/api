@@ -1,5 +1,6 @@
 package com.yt.activemq.controller;
 
+import com.yt.activemq.entity.User;
 import com.yt.activemq.jms.send.JmsSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,7 +23,6 @@ public class TestController {
     @RequestMapping(value = "/test")
     public String test(){
         Random random=new Random();
-        jmsSender.sendMessage("name"+random.nextInt());
         return "test";
     }
 
