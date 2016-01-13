@@ -4,6 +4,7 @@ import com.sun.media.jfxmedia.logging.Logger;
 import com.yt.activemq.enmu.MsgType;
 import com.yt.activemq.entity.User;
 import com.yt.activemq.jms.converter.ObjectMessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.StringUtils;
@@ -20,7 +21,8 @@ public class JmsSender {
 
     private JmsTemplate jmsTemplate;
     private Destination destination;
-    private  ObjectMessageConverter converter=new ObjectMessageConverter();
+    @Autowired
+    private  ObjectMessageConverter converter;
 
    private  Random random=new Random();
 
