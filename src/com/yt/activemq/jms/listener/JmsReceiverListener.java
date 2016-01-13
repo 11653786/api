@@ -2,6 +2,7 @@ package com.yt.activemq.jms.listener;
 
 import com.yt.activemq.entity.User;
 import com.yt.activemq.jms.converter.ObjectMessageConverter;
+import com.yt.activemq.jms.receiver.UserReceiver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.JmsUtils;
@@ -18,8 +19,8 @@ import java.util.Enumeration;
 public class JmsReceiverListener implements MessageListener{
 
     private JmsTemplate jmsTemplate;
-
-    private ObjectMessageConverter converter=new ObjectMessageConverter();
+    @Autowired
+    private ObjectMessageConverter converter;
 
     /**
      * 构造函数
@@ -38,19 +39,12 @@ public class JmsReceiverListener implements MessageListener{
     @Override
     public void onMessage(Message message) {
         try {
-             if (message instanceof TextMessage) {
-                 TextMessage textMessage = (TextMessage) message;
-                System.out.println("接收内容: " + textMessage.getText());
-             }else if(message instanceof  ObjectMessage){
+             if(message instanceof  ObjectMessage){
                 Object object=converter.fromMessage(message);
-                 System.out.println(object.getClass().getSimpleName());
-             }else if(message instanceof  MapMessage){
-                 MapMessage mapMessage= (MapMessage) message;
-                 Enumeration enums= mapMessage.getMapNames();
-                 while (enums.hasMoreElements()){
-                     System.out.println(enums.nextElement());
+                 //监听器里面什么才做都不做放到外面的处理类,可以根据类上的注解来扫描的
+                 if(object.getClass().getSimpleName().equalsIgnoreCase("user")){
+                     UserReceiver.receiver(object);
                  }
-
              }
         } catch (JMSException e) {
             System.out.println("接收异常: "+e.getMessage());

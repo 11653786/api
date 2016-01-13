@@ -34,21 +34,11 @@ public class JmsSender {
             public Message createMessage(Session session) throws JMSException {
                 Message message = null;
                 try {
-                   if(msgType.equals(MsgType.TextMessage.getMessageType())){
-                     TextMessage  textMessage=session.createTextMessage();
-                       textMessage.setText(msg);
-                        message=textMessage;
-                    }else if(msgType.equals(MsgType.ObjMessage.getMessageType())){
-                       message=converter.toMessage(entity,session);
-                   }else if(msgType.equals(MsgType.MapMessage.getMessageType())){
-                       MapMessage mapMessage=session.createMapMessage();
-                       mapMessage.setObject("KEY2","VALUE");
-                       message=mapMessage;
-                   }
+                     if(msgType.equals(MsgType.ObjMessage.getMessageType())){
+                         message=converter.toMessage(entity,session);
+                      }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
-                }finally {
-
                 }
                 return message;
             }

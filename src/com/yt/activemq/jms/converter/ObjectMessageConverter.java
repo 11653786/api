@@ -11,6 +11,7 @@ import javax.jms.Session;
 import java.io.*;
 
 /**
+ * 消息转换器用来搞定序列化问题的
  * Created by Administrator on 2016/1/13 0013.
  */
 @Component
@@ -20,7 +21,6 @@ public class ObjectMessageConverter implements MessageConverter {
     public Object fromMessage(Message message) throws JMSException,MessageConversionException {
         Object object = null;
         if(message  instanceof ObjectMessage) {
-
             //两次强转，获得消息中的主体对象字节数组流
             byte[] obj = (byte[])((ObjectMessage)message).getObject();
             //读取字节数组中为字节数组流
