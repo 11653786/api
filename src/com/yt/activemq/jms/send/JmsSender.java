@@ -3,11 +3,13 @@ package com.yt.activemq.jms.send;
 import com.sun.media.jfxmedia.logging.Logger;
 import com.yt.activemq.enmu.MsgType;
 import com.yt.activemq.entity.User;
+import com.yt.activemq.jms.converter.ObjectMessageConverter;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.StringUtils;
 
 import javax.jms.*;
+import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -18,10 +20,11 @@ public class JmsSender {
 
     private JmsTemplate jmsTemplate;
     private Destination destination;
+    private  ObjectMessageConverter converter=new ObjectMessageConverter();
 
    private  Random random=new Random();
 
-    public void sendMessage(final String msg,final User user,final String msgType) {
+    public void sendMessage(final String msg,final Serializable entity,final String msgType) {
         if (destination == null) {
             destination = jmsTemplate.getDefaultDestination();
         }
@@ -34,9 +37,7 @@ public class JmsSender {
                        textMessage.setText(msg);
                         message=textMessage;
                     }else if(msgType.equals(MsgType.ObjMessage.getMessageType())){
-                        ObjectMessage objectMessage=session.createObjectMessage();
-                       objectMessage.setObject(user);
-                       message=objectMessage;
+                       message=converter.toMessage(entity,session);
                    }else if(msgType.equals(MsgType.MapMessage.getMessageType())){
                        MapMessage mapMessage=session.createMapMessage();
                        mapMessage.setObject("KEY2","VALUE");

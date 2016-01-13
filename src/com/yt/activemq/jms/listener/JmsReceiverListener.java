@@ -1,6 +1,7 @@
 package com.yt.activemq.jms.listener;
 
 import com.yt.activemq.entity.User;
+import com.yt.activemq.jms.converter.ObjectMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.JmsUtils;
@@ -17,6 +18,8 @@ import java.util.Enumeration;
 public class JmsReceiverListener implements MessageListener{
 
     private JmsTemplate jmsTemplate;
+
+    private ObjectMessageConverter converter=new ObjectMessageConverter();
 
     /**
      * 构造函数
@@ -39,8 +42,8 @@ public class JmsReceiverListener implements MessageListener{
                  TextMessage textMessage = (TextMessage) message;
                 System.out.println("接收内容: " + textMessage.getText());
              }else if(message instanceof  ObjectMessage){
-                 ObjectMessage objectMessage= (ObjectMessage) message;
-                 System.out.println(objectMessage.getObject());
+                Object object=converter.fromMessage(message);
+                 System.out.println(object.getClass().getSimpleName());
              }else if(message instanceof  MapMessage){
                  MapMessage mapMessage= (MapMessage) message;
                  Enumeration enums= mapMessage.getMapNames();

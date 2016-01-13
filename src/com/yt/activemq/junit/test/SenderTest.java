@@ -15,8 +15,10 @@ public class SenderTest {
         ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
         JmsSender jmsSender=context.getBean(JmsSender.class);
         Random random=new Random();
+        User user=new User();
+        user.setName("name"+random.nextInt());
         //jmsSender.sendMessage("hello,world",null, MsgType.TextMessage.getMessageType());
-        //jmsSender.sendMessage("hello,world",new User("name"+random.nextInt()),MsgType.ObjMessage.getMessageType());
-        jmsSender.sendMessage("hello,world",new User("name"+random.nextInt()),MsgType.MapMessage.getMessageType());
+        jmsSender.sendMessage("hello,world",user,MsgType.ObjMessage.getMessageType());
+        //jmsSender.sendMessage("hello,world",new User("name"+random.nextInt()),MsgType.MapMessage.getMessageType());
     }
 }
