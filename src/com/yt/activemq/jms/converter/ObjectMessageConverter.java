@@ -4,10 +4,7 @@ import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
+import javax.jms.*;
 import java.io.*;
 
 /**
@@ -33,6 +30,8 @@ public class ObjectMessageConverter implements MessageConverter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }else if (message  instanceof MapMessage){
+
         }
         return object;
     }
