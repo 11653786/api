@@ -6,7 +6,7 @@ package com.yt.activemq.model;
 public class ResultObject {
 
     private String message;
-    private String Object;
+    private Object object;
     private boolean success;
 
     public ResultObject(boolean success) {
@@ -21,12 +21,12 @@ public class ResultObject {
         this.message = message;
     }
 
-    public String getObject() {
-        return Object;
+    public Object getObject() {
+        return object;
     }
 
-    public void setObject(String object) {
-        Object = object;
+    public void setObject(Object object) {
+        this.object = object;
     }
 
     public boolean isSuccess() {

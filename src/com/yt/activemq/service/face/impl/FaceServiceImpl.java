@@ -27,19 +27,18 @@ public class FaceServiceImpl implements FaceService {
 
             //https://www.baidu.com/img/bd_logo1.png百度头像
             if(allFack.getFace().size()>1){
-                System.out.println("传入人头数量: "+allFack.getFace().size());
                 resultObject.setMessage("请传入单人照片!");
                 return resultObject;
             }
 
             if(StringUtils.isEmpty(allFack.getFace()) || allFack.getFace().size()==0) {
-                System.out.println("传入人头数量: "+allFack.getFace().size());
                 resultObject.setMessage("请传入头像!");
                 return resultObject;
             }
 
             resultObject.setSuccess(true);
             resultObject.setMessage("上传头像成功!");
+            resultObject.setObject(allFack);
 
         } catch (FaceppParseException e) {
             resultObject.setMessage(e.getMessage());
