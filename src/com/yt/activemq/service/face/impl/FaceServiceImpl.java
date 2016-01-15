@@ -35,10 +35,9 @@ public class FaceServiceImpl implements FaceService {
                 resultObject.setMessage("请传入头像!");
                 return resultObject;
             }
-
             resultObject.setSuccess(true);
-            resultObject.setMessage("上传头像成功!");
-            resultObject.setObject(allFack);
+            resultObject.setMessage("上传头像成功,返回待测人脸id!");
+            resultObject.setObject(allFack.getFace().get(0).getFace_id());
 
         } catch (FaceppParseException e) {
             resultObject.setMessage(e.getMessage());

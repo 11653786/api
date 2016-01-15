@@ -1,8 +1,11 @@
 package com.yt.activemq.controller;
 
+import com.facepp.error.FaceppParseException;
+import com.facepp.http.PostParameters;
 import com.yt.activemq.entity.face.AllFack;
 import com.yt.activemq.model.ResultObject;
 import com.yt.activemq.service.face.FaceService;
+import com.yt.activemq.util.FaceUtil;
 import com.yt.activemq.util.GsonUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +47,18 @@ public class TestController {
     @ResponseBody
     public ResultObject allFace(String url){
         return faceService.getAllFace(url);
-
     }
+
+
+    @RequestMapping(value = "/landmark",method = RequestMethod.GET)
+    @ResponseBody
+    public  ResultObject landmark(String faceId) throws FaceppParseException {
+        JSONObject jsonObject= FaceUtil.getRequestInit().detectionLandmark(new PostParameters().setFaceId(faceId));
+        ResultObject resultObject=new ResultObject(true);
+        resultObject.setMessage("鉴定成功");
+        return resultObject;
+    }
+
 
 
     /**
