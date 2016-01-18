@@ -2,7 +2,9 @@ package com.yt.activemq.controller;
 
 import com.facepp.error.FaceppParseException;
 import com.facepp.http.PostParameters;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.yt.activemq.entity.compare.Simple;
 import com.yt.activemq.entity.face.AllFack;
 import com.yt.activemq.entity.face.Face;
 import com.yt.activemq.entity.group.Group;
@@ -131,7 +133,17 @@ public class TestController {
         try {
             JSONObject jsonObject = FaceUtil.getRequestInit().recognitionCompare(new PostParameters().setFaceId1(faceId1).setFaceId2(faceId2));
             resultObject.setMessage("成功");
-            resultObject.setObject(jsonObject.toString());
+            Simple simple=GsonUtil.fromJson(jsonObject.toString(), Simple.class);
+            if(simple.getSimilarity()>new Double(70)){
+                resultObject.setObject(simple);
+            }else if(simple.getSimilarity()>new Double(60)){
+                resultObject.setMessage("相似度还差一点哦");
+                resultObject.setSuccess(false);
+            }else{
+                resultObject.setMessage("不是一个人");
+                resultObject.setSuccess(false);
+            }
+
         } catch (FaceppParseException e) {
             resultObject.setSuccess(false);
             resultObject.setMessage("失败");
