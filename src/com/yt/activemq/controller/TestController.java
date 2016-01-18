@@ -118,6 +118,7 @@ public class TestController {
 
     /**
      * 比较两张脸的相似度,可以自定义设置
+     *
      * @param faceId1
      * @param faceId2
      * @return
@@ -157,6 +158,16 @@ public class TestController {
         //返回的的内容还有response_code
         return GsonUtil.fromJson(jsonObject.get("group").toString(), new TypeToken<List<Person>>() {
         }.getType());
+    }
+
+    @RequestMapping(value = "/getpSessionId", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultObject getPersonSessionId(@RequestParam(value = "personId", defaultValue = "fd681267a13f70bff6b4185d09789613") String personId) throws FaceppParseException {
+        ResultObject resultObject = new ResultObject(true);
+        JSONObject jsonObject = FaceUtil.getRequestInit().trainVerify(new PostParameters().setPersonId(personId));
+        resultObject.setMessage("成功");
+        resultObject.setObject(jsonObject.toString());
+        return resultObject;
     }
 
 
