@@ -3,6 +3,9 @@ package com.yt.activemq.controller;
 import com.facepp.error.FaceppParseException;
 import com.facepp.http.PostParameters;
 import com.yt.activemq.entity.face.AllFack;
+import com.yt.activemq.entity.face.Face;
+import com.yt.activemq.entity.group.Group;
+import com.yt.activemq.entity.person.Person;
 import com.yt.activemq.model.ResultObject;
 import com.yt.activemq.service.face.FaceService;
 import com.yt.activemq.util.FaceUtil;
@@ -18,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.PriorityQueue;
 
 /**
  * Created by Administrator on 2016/1/8 0008.
@@ -32,59 +36,81 @@ public class TestController {
 
     /**
      * 选择图片
+     *
      * @return
      */
-    @RequestMapping(value = "/allface",method = RequestMethod.GET)
-    public String face(){
+    @RequestMapping(value = "/allface", method = RequestMethod.GET)
+    public String face() {
         return "face";
     }
 
     /**
      * 获取全部信息
+     *
      * @return
      */
-    @RequestMapping(value = "/allface",method = RequestMethod.POST)
+    @RequestMapping(value = "/allface", method = RequestMethod.POST)
     @ResponseBody
-    public ResultObject allFace(String url){
+    public ResultObject allFace(String url) {
         return faceService.getAllFace(url);
     }
 
-
-    @RequestMapping(value = "/landmark",method = RequestMethod.GET)
+    //3798516f5bbeada2f1f5806146229667
+    @RequestMapping(value = "/landmark", method = RequestMethod.GET)
     @ResponseBody
-    public  ResultObject landmark(String faceId) throws FaceppParseException {
-        JSONObject jsonObject= FaceUtil.getRequestInit().detectionLandmark(new PostParameters().setFaceId(faceId));
-        ResultObject resultObject=new ResultObject(true);
+    public ResultObject landmark(String faceId) throws FaceppParseException {
+        JSONObject jsonObject = FaceUtil.getRequestInit().detectionLandmark(new PostParameters().setFaceId(faceId));
+        ResultObject resultObject = new ResultObject(true);
         resultObject.setMessage("鉴定成功");
         return resultObject;
     }
 
-
-
     /**
-     * 这个方法没用的
-     * @param files
-     * @param request
+     * 创建组
+     *
+     * @param groupName 组名
+     * @param tag       组描述
+     *                  group_id 1dbb717feda214d3c56dff86d0b3acbe
+     *                  group_name start
      * @return
      */
-    @RequestMapping(value = "/upload",method = RequestMethod.POST)
-    @Deprecated
-    public String addUser(@RequestParam("file") MultipartFile[] files,HttpServletRequest request){
-        MultipartFile file=files[0];
-        if (!file.isEmpty()) {
-            try {
-                // 文件保存路径
-                String filePath = request.getSession().getServletContext().getRealPath("/") + "upload/" + file.getOriginalFilename();
-                // 转存文件
-                file.transferTo(new File(filePath));
-            } catch (Exception e) {
-                System.out.println("上传文件："+e.getMessage());
-                e.printStackTrace();
-            }
+    @RequestMapping(value = "/create/group", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultObject createGroup(@RequestParam(value = "groupName", defaultValue = "组名") String groupName,
+                                    @RequestParam(value = "tag", defaultValue = "组描述") String tag) {
+        ResultObject resultObject = new ResultObject(true);
+        try {
+            JSONObject jsonObject = FaceUtil.getRequestInit().groupCreate(new PostParameters().setGroupName(groupName).setTag(tag));
+            Group group = GsonUtil.fromJson(jsonObject.toString(), Group.class);
+            resultObject.setObject(group);
+            resultObject.setMessage("创建组成功!");
+        } catch (FaceppParseException e) {
+            resultObject.setSuccess(false);
+            resultObject.setMessage("创建组失败");
+            e.printStackTrace();
         }
-        return "/success";
+        return resultObject;
     }
-
+    //fd681267a13f70bff6b4185d09789613 person_id
+    @RequestMapping(value = "/create/person", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultObject createPerson(@RequestParam(value = "personName", defaultValue = "杨幂") String personName,
+                                     @RequestParam(value = "face_id", defaultValue = "3798516f5bbeada2f1f5806146229667") String faceId,
+                                     @RequestParam(value = "group_id", defaultValue = "1dbb717feda214d3c56dff86d0b3acbe") String groupId,
+                                     @RequestParam(value = "tag", defaultValue = "女明星杨幂头像上传") String tag) {
+        ResultObject resultObject = new ResultObject(true);
+        try {
+            JSONObject jsonObject = FaceUtil.getRequestInit().personCreate(new PostParameters().setPersonName(personName).setFaceId(faceId).setGroupId(groupId).setTag(tag));
+            Person person= GsonUtil.fromJson(jsonObject.toString(), Person.class);
+            resultObject.setMessage("创建成功,并且加入group: "+groupId);
+            resultObject.setObject(person);
+        } catch (FaceppParseException e) {
+            resultObject.setSuccess(false);
+            resultObject.setMessage("创建人失败");
+            e.printStackTrace();
+        }
+        return resultObject;
+    }
 
 
 }
