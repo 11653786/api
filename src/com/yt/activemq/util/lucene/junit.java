@@ -18,18 +18,12 @@ import java.util.List;
  */
 public class junit {
     public static void main(String[] args) {
-
-        Query query = null;
+        CreateIndex createIndex=new CreateIndex();
         try {
-            Analyzer analyzer=new StandardAnalyzer();
-            CreateIndex.createIndex();
-            query=CreateIndex.getQuery("name","人");
-            CreateIndex.search(query);
+            List<biao> list=createIndex.getResult("yangtao");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            System.out.println("异常信息: " + e.getMessage());
         }
-
 
     }
 }

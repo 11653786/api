@@ -17,9 +17,8 @@ import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -31,9 +30,10 @@ public class CreateIndex {
     private static final String username = "root";
     private static final String password = "root";
     private Connection conn;
+    private static ResultSet rs = null;
+    private static Statement stmt = null;
     //索引生成目录
     private static final String paths = "D:/testluncene";
-
     public Connection getConnection() {
         if (this.conn == null) {
             try {
@@ -47,6 +47,35 @@ public class CreateIndex {
         }
         return conn;
     }
+
+
+    public List<biao> getResult(String queryStr) throws Exception {
+        List<biao> result = null;
+        conn = this.getConnection();
+        if(conn == null) {
+            throw new Exception("数据库连接失败！");
+        }
+        String sql = "select id,name  from biao";
+        try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            this.createIndex(rs);   //给数据库创建索引,此处执行一次，不要每次运行都创建索引，以后数据有更新可以后台调用更新索引
+            Query query=this.getQuery("name",queryStr);
+            TopDocs topDocs = this.search(query);
+            ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+        } catch(Exception e) {
+            e.printStackTrace();
+            throw new Exception("数据库查询sql出错！ sql : " + sql);
+        } finally {
+            if(rs != null) rs.close();
+            if(stmt != null) stmt.close();
+            if(conn != null) conn.close();
+        }
+        return result;
+    }
+
+
+
 
 
     public static Analyzer getAnalyzer() {
@@ -124,33 +153,26 @@ public class CreateIndex {
      * 索引方式分为4种：1、不索引（Field.Index.NO）；2、 Field.Index.ANALYZED ；3、 Field.Index.NOT_ANALYZED；4、Field.Index.NOT_ANALYZED_NO_NORMS
      * 创建索引
      */
-    public static void createIndex() {
-        String[] ids = {"1", "2", "3", "4"};
-        String[] names = {"aa", "bb", "cc", "dd"};
-        String[] contents = {
-                "Using AbstractJExcelView to export data to Excel file via JExcelAPI library",
-                "Using AbstractPdfView to export data to Pdf file via Bruno Lowagie’s iText library. ",
-                "Example to integrate Log4j into the Spring MVC application. ",
-                "Using Hibernate validator (JSR303 implementation) to validate bean in Spring MVC. "};
+    public static void createIndex(ResultSet rs) {
         IndexWriter writer = null;
+        Document doc = null;
         try {
             //创建索引写入者
             writer = createIndexWriter();
-            Document doc = null;
-            for (int i = 0; i < ids.length; i++) {
+            while (rs.next()){
+                System.out.println(rs.getString(1)+","+rs.getString(2));
                 doc = new Document();
-                doc.add(new Field("id", ids[i], Field.Store.YES,
-                        Field.Index.NOT_ANALYZED_NO_NORMS));
-                doc.add(new Field("name", names[i], Field.Store.YES,
-                        Field.Index.NOT_ANALYZED_NO_NORMS));
-                doc.add(new Field("contents", contents[i], Field.Store.YES,
-                        Field.Index.ANALYZED));
+                Field id = new Field("id", String.valueOf(rs.getInt("id")), Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
+                Field username = new Field("name", rs.getString("name") == null ? "" : rs.getString("name"), Field.Store.YES,Field.Index.ANALYZED, Field.TermVector.NO);
+                doc.add(id);
+                doc.add(username);
                 writer.addDocument(doc);
-                writer.commit();
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
             closeIndexWriter(writer);
         }
     }
@@ -159,8 +181,8 @@ public class CreateIndex {
     public static Query getQuery(String field, String content) {
         Query query = null;
         try {
-            QueryParser parser = LuceneUtils.createQueryParser("name", getAnalyzer());
-            query = parser.parse("人");
+            QueryParser parser = LuceneUtils.createQueryParser(field, getAnalyzer());
+            query = parser.parse(content);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -173,7 +195,7 @@ public class CreateIndex {
      * @param query
      * @throws Exception
      */
-    public static void search(Query query) throws Exception {
+    public static TopDocs search(Query query) throws Exception {
         Directory dire = FSDirectory.open(Paths.get(paths));
         IndexReader ir = DirectoryReader.open(dire);
         IndexSearcher is = new IndexSearcher(ir);
@@ -185,6 +207,7 @@ public class CreateIndex {
             System.out.println(d.getFields().get(0));
             System.out.println(d.get("path") + ":[" + d.get("path") + "]");
         }
+        return td;
     }
 
 }
