@@ -5,6 +5,8 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.*;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -103,7 +105,7 @@ public class CreateIndex {
     /**
      * 获取IndexSearcher对象
      *
-     * @param reader   IndexReader对象实例
+     * @param reader IndexReader对象实例
      * @return
      */
     public IndexSearcher getIndexSearcher(IndexReader reader) {
@@ -154,22 +156,34 @@ public class CreateIndex {
     }
 
 
+    public static Query getQuery(String field, String content) {
+        Query query = null;
+        try {
+            QueryParser parser = LuceneUtils.createQueryParser("name", getAnalyzer());
+            query = parser.parse("人");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return query;
+    }
+
     /**
      * 搜索
+     *
      * @param query
      * @throws Exception
      */
     public static void search(Query query) throws Exception {
-        Directory dire=FSDirectory.open(Paths.get(paths));
-        IndexReader ir=DirectoryReader.open(dire);
-        IndexSearcher is=new IndexSearcher(ir);
-        TopDocs td=is.search(query, 1000);
-        System.out.println("共为您查找到"+td.totalHits+"条结果");
-        ScoreDoc[] sds =td.scoreDocs;
+        Directory dire = FSDirectory.open(Paths.get(paths));
+        IndexReader ir = DirectoryReader.open(dire);
+        IndexSearcher is = new IndexSearcher(ir);
+        TopDocs td = is.search(query, 1000);
+        System.out.println("共为您查找到" + td.totalHits + "条结果");
+        ScoreDoc[] sds = td.scoreDocs;
         for (ScoreDoc sd : sds) {
             Document d = is.doc(sd.doc);
             System.out.println(d.getFields().get(0));
-            System.out.println(d.get("path") + ":["+d.get("path")+"]");
+            System.out.println(d.get("path") + ":[" + d.get("path") + "]");
         }
     }
 

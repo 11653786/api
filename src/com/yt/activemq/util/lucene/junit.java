@@ -23,8 +23,7 @@ public class junit {
         try {
             Analyzer analyzer=new StandardAnalyzer();
             CreateIndex.createIndex();
-            QueryParser parser = LuceneUtils.createQueryParser("name",analyzer);
-            query = parser.parse("人");
+            query=CreateIndex.getQuery("name","人");
             CreateIndex.search(query);
         } catch (Exception e) {
             System.out.println(e.getMessage());
