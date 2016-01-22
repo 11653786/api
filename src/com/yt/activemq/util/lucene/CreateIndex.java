@@ -4,9 +4,11 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -16,6 +18,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by Administrator on 2016/1/22 0022.
@@ -51,7 +54,6 @@ public class CreateIndex {
     }
 
     /**
-     *
      * @return
      */
     public static IndexWriter createIndexWriter() {
@@ -66,7 +68,7 @@ public class CreateIndex {
         return indexWriter;
     }
 
-    public static void closeIndexWriter(IndexWriter writer){
+    public static void closeIndexWriter(IndexWriter writer) {
         if (writer != null) {
             try {
                 writer.close();
@@ -76,6 +78,43 @@ public class CreateIndex {
                 e.printStackTrace();
             }
         }
+    }
+
+    public IndexReader getIndexReader(boolean enableNRTReader) {
+        Directory dir = null;
+        IndexReader reader = null;
+        try {
+            dir = FSDirectory.open(Paths.get(paths));
+            if (null == reader) {
+                reader = DirectoryReader.open(dir);
+            } else {
+                if (enableNRTReader && reader instanceof DirectoryReader) {
+                    //开启近实时Reader,能立即看到动态添加/删除的索引变化
+                    reader = DirectoryReader.openIfChanged((DirectoryReader) reader);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return reader;
+    }
+
+
+    /**
+     * 获取IndexSearcher对象
+     *
+     * @param reader   IndexReader对象实例
+     * @return
+     */
+    public IndexSearcher getIndexSearcher(IndexReader reader) {
+        IndexSearcher searcher = null;
+        if (null == reader) {
+            throw new IllegalArgumentException("The indexReader can not be null.");
+        }
+        if (null == searcher) {
+            searcher = new IndexSearcher(reader);
+        }
+        return searcher;
     }
 
     /**
@@ -94,7 +133,7 @@ public class CreateIndex {
         IndexWriter writer = null;
         try {
             //创建索引写入者
-            writer=createIndexWriter();
+            writer = createIndexWriter();
             Document doc = null;
             for (int i = 0; i < ids.length; i++) {
                 doc = new Document();
@@ -111,6 +150,26 @@ public class CreateIndex {
             e.printStackTrace();
         } finally {
             closeIndexWriter(writer);
+        }
+    }
+
+
+    /**
+     * 搜索
+     * @param query
+     * @throws Exception
+     */
+    public static void search(Query query) throws Exception {
+        Directory dire=FSDirectory.open(Paths.get(paths));
+        IndexReader ir=DirectoryReader.open(dire);
+        IndexSearcher is=new IndexSearcher(ir);
+        TopDocs td=is.search(query, 1000);
+        System.out.println("共为您查找到"+td.totalHits+"条结果");
+        ScoreDoc[] sds =td.scoreDocs;
+        for (ScoreDoc sd : sds) {
+            Document d = is.doc(sd.doc);
+            System.out.println(d.getFields().get(0));
+            System.out.println(d.get("path") + ":["+d.get("path")+"]");
         }
     }
 
