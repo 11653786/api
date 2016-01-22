@@ -210,8 +210,8 @@ public class CreateIndex {
         ScoreDoc[] sds = td.scoreDocs;
         for (ScoreDoc sd : sds) {
             Document d = is.doc(sd.doc);
-            System.out.println(d.getFields().get(0));
-            System.out.println(d.get("path") + ":[" + d.get("path") + "]");
+            System.out.println(d.getFields().get(0).name()+":"+d.getFields().get(0).stringValue());
+            System.out.println(d.getFields().get(1).name()+":"+d.getFields().get(1).stringValue());
         }
         return td;
     }
