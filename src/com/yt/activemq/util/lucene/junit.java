@@ -18,9 +18,9 @@ import java.util.List;
  */
 public class junit {
     public static void main(String[] args) {
-        CreateIndex createIndex=new CreateIndex();
+        CreateIndex createIndex = new CreateIndex();
         try {
-            List<biao> list=createIndex.getResult("yangtao");
+            List<biao> list = createIndex.getResult("yangtao");
         } catch (Exception e) {
             System.out.println("异常信息: " + e.getMessage());
         }

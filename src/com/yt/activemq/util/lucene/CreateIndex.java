@@ -15,6 +15,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -59,7 +60,12 @@ public class CreateIndex {
         try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
-            this.createIndex(rs);   //给数据库创建索引,此处执行一次，不要每次运行都创建索引，以后数据有更新可以后台调用更新索引
+            //只有第一次的时候创建索引
+            if(!new File(paths).exists()){
+                new File(paths).mkdirs();
+                this.createIndex(rs);   //给数据库创建索引,此处执行一次，不要每次运行都创建索引，以后数据有更新可以后台调用更新索引
+            }
+
             Query query=this.getQuery("name",queryStr);
             TopDocs topDocs = this.search(query);
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
