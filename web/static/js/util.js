@@ -18,6 +18,15 @@ util.easyui.datagrid = function () {
     this.loadParams={};
     //datagrid的参数
     this.dParams = {
+        fit: true,
+        fitColumns: true,
+        border: false,
+        pagination: true,
+        idField: 'name',
+        checkOnSelect: false,
+        selectOnCheck: false,
+        pageSize: 10,
+        pageList: [10, 15, 20, 25, 30],
         url: firstParent.urls,
         method: 'post',
         pagination: true,
@@ -25,7 +34,11 @@ util.easyui.datagrid = function () {
         //默认工具条
         toolbar: '#toolbar',
         //表格数据
-        columns:[]
+        columns:[],
+        onLoadSuccess: function () {
+            parent.$.messager.progress('close');
+            //$(this).datagrid('tooltip');
+        }
     }
     //加载datagrid
     this.init=function(){
